@@ -53,11 +53,16 @@ Engine/
 # and you do NOT want to store the existing demo content
 # If you uncomment one of these, your repo might get very large
 UDKGame/Content/LevelDesignClass/
-UDKGame/Content/Maps/
+
+UDKGame/Content/Maps/Examples/
+UDKGame/Content/Maps/Learning/
+UDKGame/Content/Maps/Mobile/
+UDKGame/Content/Maps/Showcases/
+UDKGame/Content/Maps/UT3/
+
 UDKGame/Content/Mobile/
 UDKGame/Content/Scraps/
 UDKGame/Content/TeamEggplant/
-
 UDKGame/Content/Shared/
 UDKGame/Content/Showcases/
 UDKGame/Content/TestPackages/
