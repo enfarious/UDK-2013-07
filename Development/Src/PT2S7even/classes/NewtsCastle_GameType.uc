@@ -1,6 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: Apr 20, 2014
+ * Last Edited: May 15 2014
  * http://udn.epicgames.com/Three/GametypeTechnicalGuide.html
  * 
  * Purpose:	This is a new game type extended from the packaged one in order to provide some different functionality
@@ -9,15 +9,13 @@
 
 class NewtsCastle_GameType extends UDKGame;
 
-var int nScore, nCameraMode, nDifficulty;
-var float fPlayTimer, fCountDownTimer;
+var int nScore;
+var float fCountDownTimer;
 var bool bTimeLimitReached, bMouseActive;
 
 // Update time, used by SetTimer to automatically call at a regular interval (1/10th of a second for now)
 function Tick(float DeltaTime)
 {
-	fPlayTimer += DeltaTime;
-
 	if (fCountDownTimer > 0) {
 		fCountDownTimer -= DeltaTime;
 	} else if (!bTimeLimitReached) {
@@ -26,6 +24,8 @@ function Tick(float DeltaTime)
 		fCountDownTimer = 0;
 		// Finally trigger our custom Kismet event
 		TriggerGlobalEventClass(class'SeqEvent_OutOfTime', self);
+	} else if (bTimeLimitReached) {
+		fCountDownTimer += DeltaTime;
 	}
 }
 
@@ -35,13 +35,8 @@ DefaultProperties
 	DefaultPawnClass=class'NewtsCastle_Pawn'
 	PlayerControllerClass=class'NewtsCastle_PlayerController'
 
-	// Camera Settings
-	nCameraMode = 1;
-
 	// General Game Settings
-	nDifficulty = 1;
-	fPlayTimer = 0;
-	fCountDownTimer = 30.0;
+	fCountDownTimer = 180.0; // 3 minute countdown default
 	bTimeLimitReached = false;
 	nScore = 0;
 

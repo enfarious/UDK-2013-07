@@ -35,8 +35,6 @@ state PlayerWalking
 			P = NewtsCastle_Pawn(Pawn);
 			if(P != none)
 			{
-			if(P.CameraType == CAM_SideScroller)
-			{
 				Pawn.Acceleration.X = -1 * PlayerInput.aStrafe * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
 				Pawn.Acceleration.Y = 0;
 				Pawn.Acceleration.Z = 0;
@@ -54,70 +52,34 @@ state PlayerWalking
 					P.SetRotation(tempRot);
 				}
 			}
-			else
-			{
-
-				if ( (DoubleClickMove == DCLICK_Active) && (Pawn.Physics == PHYS_Falling) )
-					DoubleClickDir = DCLICK_Active;
-				else if ( (DoubleClickMove != DCLICK_None) && (DoubleClickMove < DCLICK_Active) )
-				{
-					if ( UTPawn(Pawn).Dodge(DoubleClickMove) )
-						DoubleClickDir = DCLICK_Active;
-				}
-               
-				Pawn.Acceleration = newAccel;
-			}
 
 			if (Role == ROLE_Authority)
 			{
 				// Update ViewPitch for remote clients
 				Pawn.SetRemoteViewPitch( Rotation.Pitch );
 			}
-			}
-
-			CheckJumpOrDuck();
 		}
+
+		CheckJumpOrDuck();
 	}
 }
 
 function UpdateRotation( float DeltaTime )
 {
-	local NewtsCastle_Pawn P;
-	local Rotator   DeltaRot, newRotation, ViewRotation;
-
-	P = NewtsCastle_Pawn(Pawn);
+	local Rotator   DeltaRot, ViewRotation;
 
 	if (NewtsCastle_GameType(WorldInfo.Game).bMouseActive) {
 		return;
 	}
 
 	ViewRotation = Rotation;
-	if (p != none && P.CameraType != CAM_SideScroller)
-	{
-		Pawn.SetDesiredRotation(ViewRotation);
-	}
 
 	// Calculate Delta to be applied on ViewRotation
-	if( P != none && P.CameraType == CAM_SideScroller )
-	{
-		DeltaRot.Yaw = Pawn.Rotation.Yaw;
-	}
-	else
-	{
-		DeltaRot.Yaw = PlayerInput.aTurn;
-	}
+	DeltaRot.Yaw = Pawn.Rotation.Yaw;
 	DeltaRot.Pitch = PlayerInput.aLookUp; 
 
 	ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
 	SetRotation(ViewRotation);
-
-	ViewShake( deltaTime );
-
-	NewRotation = ViewRotation;
-	NewRotation.Roll = Rotation.Roll;
-
-	if (P != None && P.CameraType != CAM_SideScroller )
-		Pawn.FaceRotation(NewRotation, deltatime);
 }
 
 // Handle mouse inputs

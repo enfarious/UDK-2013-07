@@ -1,12 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: Apr 20, 2014
- * 
- * Credit: Christopher Maxwell videos listed below
- * Credit: FSGDnBS_PT1_W1_01_HUD.wmv
- * Credit: FSGDnBS_PT1_W1_02_HUD_DrawText.wmv
- * Credit: FSGDnBS_PT1_W1_03_HUD_DrawTile.wmv
- * Credit: FSGDnBS_PT1_W1_04_GameType_Timer.wmv
+ * Last Edited: May 2014
  * 
  * Credit: http://udn.epicgames.com/Three/DevelopmentKitGemsCreatingAMouseInterface.html#Unrealscript
  * 
@@ -64,20 +58,11 @@ var NewtsCastle_MouseInterfaceInteractionInterface LastMouseInteractionInterface
 // Draw the HUD on screen
 function DrawHUD()
 {
-	local NewtsCastle_GameType Game;
-
 	Super.DrawHUD();
 
-	Game = NewtsCastle_GameType(WorldInfo.Game);
-
-	if (!Game.bIsHacking) {
-		DrawHint();
-	} else {
-		DrawBackGround();
-		DrawTimer();
-		DrawCoherency();
-		DrawScore();
-	}
+	DrawBackGround();
+	DrawTimer();
+	DrawScore();
 }
 
 // Draw our HUD background
@@ -85,50 +70,7 @@ function DrawBackGround()
 {
 	Canvas.SetPos(0.0, 0.0);
 
-	Canvas.DrawTile(m_HUDBG, 500, 300, 0.0, 0.0, m_HUDBG.SizeX, m_HUDBG.SizeY);
-}
-
-// Draw our current camera mode
-function DrawCameraMode()
-{
-	local float fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY;
-	local string sCamerMode;
-
-	local NewtsCastle_GameType Game;
-
-	Game = NewtsCastle_GameType(WorldInfo.Game);
-
-	switch (Game.nCameraMode)
-	{
-		case CAM_FirstPerson:
-			sCamerMode = "First Person";
-			break;
-		case CAM_ThirdPerson:
-			sCamerMode = "Third Person";
-			break;
-		case CAM_TopDown:
-			sCamerMode = "Top Down";
-			break;
-		case CAM_SideScroller:
-			sCamerMode = "Side Scroller";
-			break;
-		case CAM_Isometric:
-			sCamerMode = "Isometric";
-			break;
-		default:
-			sCamerMode = "Unknown";
-	}
-
-	fTextScaleX = 2.0;
-	fTextScaleY = 2.0;
-	
-	Canvas.Font = m_MultiFont;
-
-	Canvas.SetPos(16.0, 8.0);
-	Canvas.SetDrawColor(32, 255, 32, 255);
-	Canvas.TextSize("Camera Mode: " @ sCamerMode, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
-	Canvas.DrawText("Camera Mode: " @ sCamerMode, false, fTextScaleX, fTextScaleY);
-
+	Canvas.DrawTile(m_HUDBG, 300, 200, 0.0, 0.0, m_HUDBG.SizeX, m_HUDBG.SizeY);
 }
 
 // Draw the games timer on screen
@@ -146,27 +88,8 @@ function DrawTimer()
 
 	Canvas.SetPos(16.0, 8.0);
 	Canvas.SetDrawColor(255, 32, 32, 255);
-	Canvas.TextSize("Countdown: " @ Game.fCountDownTimer, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
-	Canvas.DrawText("Countdown: " @ Game.fCountDownTimer, false, fTextScaleX, fTextScaleY);
-}
-
-// Draw the hacking signal coherency 
-function DrawCoherency()
-{
-	local float fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY;
-	local NewtsCastle_GameType Game;
-
-	Game = NewtsCastle_GameType(WorldInfo.Game);
-
-	fTextScaleX = 2.0;
-	fTextScaleY = 2.0;
-	
-	Canvas.Font = m_MultiFont;
-
-	Canvas.SetPos(16.0, 32.0);
-	Canvas.SetDrawColor(56, 255, 32, 255);
-	Canvas.TextSize("Signal Coherency: " @ Game.nCoherency, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
-	Canvas.DrawText("Signal Coherency: " @ Game.nCoherency, false, fTextScaleX, fTextScaleY);
+	Canvas.TextSize("Time: " @ Game.fCountDownTimer, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
+	Canvas.DrawText("Time: " @ Game.fCountDownTimer, false, fTextScaleX, fTextScaleY);
 }
 
 // Draw the game score on screen, points are earned by bouncing plasma rounds off objects
@@ -183,7 +106,7 @@ function DrawScore()
 	
 	Canvas.Font = m_MultiFont;
 
-	Canvas.SetPos(16.0, 56.0);
+	Canvas.SetPos(16.0, 24.0);
 	Canvas.SetDrawColor(200, 200, 200, 255);
 
 	Canvas.TextSize("Score: " @ Game.nScore, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
@@ -448,7 +371,7 @@ function Vector GetMouseWorldLocation()
 
 DefaultProperties
 {
-	m_HUDBG = Texture2D'NewtsCastle_W1_Con.Textures.T_HUD_BG';
+	m_HUDBG = Texture2D'PT2S7even_Assets.Textures.T_HUD_BG';
 	m_Font = MultiFont'UI_Fonts_Final.menus.Fonts_Positec';
 	m_MultiFont = MultiFont'UI_Fonts_Final.HUD.MF_Small';
 
