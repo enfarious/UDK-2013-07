@@ -1,6 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: Apr 20, 2014
+ * Last Edited: May 17, 2014
  * 
  * Purpose: create a kismet action to toggle mouse mode on/off
  */
@@ -41,4 +41,5 @@ defaultproperties
 	InputLinks(Off)=(LinkDesc="Off");
 	InputLinks(Toggle)=(LinkDesc="Toggle");
 
+	bCallHandler = false;
 }

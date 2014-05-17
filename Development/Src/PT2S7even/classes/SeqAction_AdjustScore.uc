@@ -1,9 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: Apr 20, 2014
- * 
- * Credit: Christopher Maxwell videos listed below
- * GDn3840-PT1_W2_Lecture.wmv
+ * Last Edited: May 17, 2014
  * 
  * Purpose: create a kismet action to adjust our game score
  */
@@ -33,4 +30,6 @@ defaultproperties
 	VariableLinks(0) = (ExpectedType=class'SeqVar_Int', LinkDesc="AdjustAmnt", PropertyName=ScoreValue);
 
 	ScoreValue=100;
+
+	bCallHandler = false;
 }

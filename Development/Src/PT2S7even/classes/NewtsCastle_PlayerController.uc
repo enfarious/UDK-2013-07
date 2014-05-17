@@ -1,9 +1,6 @@
 /*
 	* Author: Michael Davidson
-	* Last Edited: Apr 20, 2014
-	* 
-	* Credit: Christopher Maxwell videos listed below
-	* GDn3840-PT1_W2_Lecture.wmv
+	* Last Edited: May 17, 2014
 	* 
 	* Credit: http://udn.epicgames.com/Three/CameraTechnicalGuide.html#Example%20All-In-One%20Camera
 	* Credit: http://udn.epicgames.com/Three/DevelopmentKitGemsCreatingAMouseInterface.html#Unrealscript
@@ -35,7 +32,7 @@ state PlayerWalking
 			P = NewtsCastle_Pawn(Pawn);
 			if(P != none)
 			{
-				Pawn.Acceleration.X = -1 * PlayerInput.aStrafe * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
+				Pawn.Acceleration.X = PlayerInput.aStrafe * DeltaTime * 100 * PlayerInput.MoveForwardSpeed;
 				Pawn.Acceleration.Y = 0;
 				Pawn.Acceleration.Z = 0;
                
@@ -149,14 +146,51 @@ function HandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent)
 // Hook used for the left and right mouse button when pressed
 exec function StartFire(optional byte FireModeNum)
 {
+	local NewtsCastle_Pawn P;
+
 	HandleMouseInput((FireModeNum == 0) ? LeftMouseButton : RightMouseButton, IE_Pressed);
+
+	// Show REPULSOR charging effect ...
+
+	if( (Pawn != None) )
+	{
+		P = NewtsCastle_Pawn(Pawn);
+		if(P != none)
+		{
+			P.RepulsorCharging(true);
+		}
+	}
+
 	Super.StartFire(FireModeNum);
 }
 
 // Hook used for the left and right mouse button when released
 exec function StopFire(optional byte FireModeNum)
 {
+	local NewtsCastle_Pawn P;
+	local float Force;
+
 	HandleMouseInput((FireModeNum == 0) ? LeftMouseButton : RightMouseButton, IE_Released);
+
+	// For testing lets just make this a silly amount of force in a couple directions
+	// For reality it should be an amount of force based on angle of impact
+	if( (Pawn != None) )
+	{
+		P = NewtsCastle_Pawn(Pawn);
+		if(P != none)
+		{
+			Force = 10000; //P.RepulsorStrength;
+
+			P.RepulsorCharging(false);
+
+			Pawn.Acceleration.X = Force;
+			Pawn.Acceleration.Y = 0;
+			Pawn.Acceleration.Z = Force;
+	
+
+		}
+	}
+
 	Super.StopFire(FireModeNum);
 }
 

@@ -1,6 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: May 15 2014
+ * Last Edited: May 17, 2014
  * http://udn.epicgames.com/Three/GametypeTechnicalGuide.html
  * 
  * Purpose:	This is a new game type extended from the packaged one in order to provide some different functionality

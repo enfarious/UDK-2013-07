@@ -1,6 +1,6 @@
 /*
 	* Author: Michael Davidson
-	* Last Edited: Apr 20, 2014
+	* Last Edited: May 17, 2014
 	* 
 	* Credit: http://udn.epicgames.com/Three/DevelopmentKitGemsCreatingAMouseInterface.html#Adding%20a%20subclassed%20KActor%20as%20an%20example
 	* 

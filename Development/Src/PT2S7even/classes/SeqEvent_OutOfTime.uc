@@ -1,10 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: Apr 20, 2014
- * 
- * Credit: Christopher Maxwell videos listed below
- * FSGDnBS_PT1_W2_04_Kismet_Event
- * FSGDnBS_PT1_W2_05_Kismet_Event_Outputlinks
+ * Last Edited: May 17, 2014
  * 
  * Purpose: create a kismet event that triggers when the timer reaches 0
  */

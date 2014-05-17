@@ -1,6 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: Apr 20, 2014
+ * Last Edited: May 17, 2014
  * 
  * Credit: http://udn.epicgames.com/Three/DevelopmentKitGemsCreatingAMouseInterface.html#Unrealscript
  * 
@@ -14,17 +14,17 @@ var IntPoint MousePosition;
 
 event PlayerInput(float DeltaTime)
 {
-  // Handle mouse 
-  // Ensure we have a valid HUD
-  if (myHUD != None) 
-  {
-    // Add the aMouseX to the mouse position and clamp it within the viewport width
-    MousePosition.X = Clamp(MousePosition.X + aMouseX, 0, myHUD.SizeX); 
-    // Add the aMouseY to the mouse position and clamp it within the viewport height
-    MousePosition.Y = Clamp(MousePosition.Y - aMouseY, 0, myHUD.SizeY); 
-  }
-
-  Super.PlayerInput(DeltaTime);
+	// Handle mouse 
+	// Ensure we have a valid HUD
+	if (myHUD != None) 
+	{
+		// Add the aMouseX to the mouse position and clamp it within the viewport width
+		MousePosition.X = Clamp(MousePosition.X + aMouseX, 0, myHUD.SizeX); 
+		// Add the aMouseY to the mouse position and clamp it within the viewport height
+		MousePosition.Y = Clamp(MousePosition.Y - aMouseY, 0, myHUD.SizeY); 
+	}
+	`Log("MousePosition: " $MousePosition.X $", " $MousePosition.Y);
+	Super.PlayerInput(DeltaTime);
 }
 
 DefaultProperties

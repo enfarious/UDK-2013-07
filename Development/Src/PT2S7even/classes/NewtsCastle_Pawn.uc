@@ -1,6 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: Apr 20, 2014
+ * Last Edited: May 17, 2014
  * 
  * Credit: http://udn.epicgames.com/Three/CameraTechnicalGuide.html#Example%20All-In-One%20Camera
  * Credit: http://udn.epicgames.com/Three/DevelopmentKitGemsCreatingAMouseInterface.html#Unrealscript
@@ -11,6 +11,9 @@
 class NewtsCastle_Pawn extends UDKPawn;
 
 var float CamOffsetDistance; //Position on Y-axis to lock camera to
+var float RepulsorStrength; // Charge amount in repulsor
+var float RepulsorMaxStrength; // Maximum charge in repulsor
+var float RepulsorChargeSpeed; // How fast the repulsor will charge while button pressed
 
 // sets whether or not the owner of this pawn can see it
 simulated function SetMeshVisibility(bool bVisible)
@@ -46,7 +49,7 @@ simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out
    out_CamLoc.Y -= CamOffsetDistance;
 
    out_CamRot.Pitch = 0;
-   out_CamRot.Yaw = 16384;
+   out_CamRot.Yaw = -16384;
    out_CamRot.Roll = 0;
    return true;
 }
@@ -74,7 +77,24 @@ simulated singular event Rotator GetBaseAimRotation()
    return POVRot;
 }   
 
+function RepulsorCharging(bool bCharging)
+{
+	if (bCharging && RepulsorStrength < RepulsorMaxStrength)
+	{
+		RepulsorStrength += RepulsorChargeSpeed;
+	}
+	else
+	{
+		RepulsorStrength = 0;
+	}
+}
+
 defaultproperties
 {
-   CamOffsetDistance=384.0
+	CamOffsetDistance = -800.0;
+
+	RepulsorStrength = 0;
+	RepulsorChargeSpeed = 10;
+	RepulsorMaxStrength = 100;
+
 }

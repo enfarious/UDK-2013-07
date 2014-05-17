@@ -1,6 +1,6 @@
 /*
  * Author: Michael Davidson
- * Last Edited: May 2014
+ * Last Edited: May 17, 2014
  * 
  * Credit: http://udn.epicgames.com/Three/DevelopmentKitGemsCreatingAMouseInterface.html#Unrealscript
  * 
@@ -9,21 +9,12 @@
 
 class NewtsCastle_HUD extends HUD;
 
-// To save some effort when checking cam type
-Enum CameraPerspective
-{
-   CAM_FirstPerson,
-   CAM_ThirdPerson,
-   CAM_TopDown,
-   CAM_SideScroller,
-   CAM_Isometric
-};
-
 // Member variables
 var Font m_Font;
 var MultiFont m_MultiFont;
 
 var Texture2D m_HUDBG;
+var Texture2D m_Reticle;
 
 var const Texture2D CursorTexture; 
 var const Color CursorColor;
@@ -63,6 +54,9 @@ function DrawHUD()
 	DrawBackGround();
 	DrawTimer();
 	DrawScore();
+
+	DrawReticle();
+
 }
 
 // Draw our HUD background
@@ -92,7 +86,7 @@ function DrawTimer()
 	Canvas.DrawText("Time: " @ Game.fCountDownTimer, false, fTextScaleX, fTextScaleY);
 }
 
-// Draw the game score on screen, points are earned by bouncing plasma rounds off objects
+// Draw the game score on screen
 function DrawScore()
 {
 	local float fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY;
@@ -106,7 +100,7 @@ function DrawScore()
 	
 	Canvas.Font = m_MultiFont;
 
-	Canvas.SetPos(16.0, 24.0);
+	Canvas.SetPos(16.0, 32.0);
 	Canvas.SetDrawColor(200, 200, 200, 255);
 
 	Canvas.TextSize("Score: " @ Game.nScore, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
@@ -115,27 +109,50 @@ function DrawScore()
 
 }
 
-// Draw a hint to tell the player to hack the lock pad
-function DrawHint()
+// Draw our Reticle on screen
+function DrawReticle()
 {
-	local float fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY;
-	local string hint;
+	local Vector MousePos, PawnScreenPos, ReticleSize, Direction;
+	local Rotator ReticleRot;
+	local float Angle;
 
-	fTextScaleX = 2.0;
-	fTextScaleY = 2.0;
+	local Color LineColor;
+
+	local NewtsCastle_MouseInterfacePlayerInput Mouse;
+
+	Mouse = NewtsCastle_MouseInterfacePlayerInput(PlayerOwner.PlayerInput);
+	if (Mouse == none)
+	{
+		return;
+	}
+
+	PawnScreenPos = Canvas.Project(PlayerOwner.Pawn.Location);
+
+	MousePos.X = Mouse.MousePosition.X;
+	MousePos.Y = Mouse.MousePosition.Y;
+	MousePos.Z = PawnScreenPos.Z;
+
+	ReticleSize.X = 300;
+	ReticleSize.Y = 300;
+	ReticleSize.Z = 0;
+
+	Direction = MousePos - PawnScreenPos;
+	Angle = Atan2(Direction.X, Direction.Y);
+
+	ReticleRot.Yaw = 16384 - ((Angle - Pi/2) * RadToUnrRot);
+	ReticleRot.Roll = 0;
+	ReticleRot.Pitch = 0;
+
+	LineColor.A = 127.0;
+	LineColor.R = 200.0;
+	LineColor.G = 10.0;
+	LineColor.B = 10.0;
+
+	// Show a line from the mouse to the pawn if things seem wonky
+	Canvas.Draw2DLine(PawnScreenPos.X, PawnScreenPos.Y, MousePos.X, MousePos.Y, LineColor);
 	
-	Canvas.Font = m_MultiFont;
-	Canvas.SetDrawColor(200, 200, 200, 200);
-
-	hint = "Try using the security pad by the door.";
-	Canvas.SetPos(16.0, 8.0);
-	Canvas.TextSize(hint, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
-	Canvas.DrawText(hint, false, fTextScaleX, fTextScaleY);
-
-	hint = "Just walk over to it and press E";
-	Canvas.SetPos(16.0, 32.0);
-	Canvas.TextSize(hint, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
-	Canvas.DrawText(hint, false, fTextScaleX, fTextScaleY);
+	Canvas.SetPos(PawnScreenPos.X - ReticleSize.X/2, PawnScreenPos.Y - ReticleSize.Y/2);
+	Canvas.DrawRotatedTile(m_Reticle, ReticleRot, ReticleSize.X, ReticleSize.Y, 0, 0, m_Reticle.SizeX, m_Reticle.SizeY);
 }
 
 event PostRender()
@@ -374,6 +391,8 @@ DefaultProperties
 	m_HUDBG = Texture2D'PT2S7even_Assets.Textures.T_HUD_BG';
 	m_Font = MultiFont'UI_Fonts_Final.menus.Fonts_Positec';
 	m_MultiFont = MultiFont'UI_Fonts_Final.HUD.MF_Small';
+
+	m_Reticle = Texture2D'UI_HUD.HUD.UI_HUD_DamageDir';
 
 	CursorColor=(R=255,G=255,B=255,A=255)
 	CursorTexture=Texture2D'EngineResources.Cursors.Arrow'
