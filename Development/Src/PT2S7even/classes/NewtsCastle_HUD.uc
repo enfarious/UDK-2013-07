@@ -81,7 +81,14 @@ function DrawTimer()
 	Canvas.Font = m_MultiFont;
 
 	Canvas.SetPos(16.0, 8.0);
-	Canvas.SetDrawColor(255, 32, 32, 255);
+	if (Game.bTimeLimitReached) { // Ran out of time
+		Canvas.SetDrawColor(255, 32, 0, 255);
+	} else if (!Game.bTimeLimitReached && Game.fCountDownTimer < Game.fTimeLimit/4) { // Less than 25% time remaining
+		Canvas.SetDrawColor(255, 255, 0, 255);
+	} else { // More than 25% time remaining
+		Canvas.SetDrawColor(32, 255, 32, 255);
+	}
+
 	Canvas.TextSize("Time: " @ Game.fCountDownTimer, fTextSizeX, fTextSizeY, fTextScaleX, fTextScaleY);
 	Canvas.DrawText("Time: " @ Game.fCountDownTimer, false, fTextScaleX, fTextScaleY);
 }

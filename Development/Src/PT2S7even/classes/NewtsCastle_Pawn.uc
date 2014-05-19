@@ -105,7 +105,6 @@ function RepulsorCharge(bool bStartCharging, optional Vector ForceVector)
 {
 	local ParticleSystem Repulsor;
 	local ParticleSystem Repulse;
-	local rotator POVRot;
 
 	if (bStartCharging == true)
 	{
@@ -146,24 +145,24 @@ function RepulsorCharge(bool bStartCharging, optional Vector ForceVector)
 			RepulsorComponent.bUpdateComponentInTick = true;
 
 	
-			//RepulsorComponent.SetVectorParameter('ShockBeamEnd', ForceVector);
-			RepulsorComponent.SetVectorParameter('ShockBeamStart', ForceVector);
+			RepulsorComponent.SetVectorParameter('ShockBeamEnd', ForceVector);
+			//RepulsorComponent.SetVectorParameter('ShockBeamStart', ForceVector);
 		}
 /*
 		`log("RepulsorStrength: " $RepulsorStrength);
 		`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
 */
-		AddVelocity(ForceVector, Location, none);
 		
 		// Repulsor Hax for movement:
+		//AddVelocity(ForceVector, Location, none);
 
 		// Use TakeDamage cause it can work, but occasionally seems to "push" the wrong way
 		// TakeDamage(0, none, ForceVector, vect(0, 0, 0), class'DamageType');
 
 		// Force the change in velocity
 		// Change physics to falling to stop Velocity changes from being messed with.
-		// SetPhysics(PHYS_Falling);
-		// Velocity += ForceVector;
+		SetPhysics(PHYS_Falling);
+		Velocity += ForceVector;
 
 		bCharging = false;
 		EmitterScale = 0.0f;
@@ -177,7 +176,7 @@ function Tick(float DeltaTime)
 	if (bCharging == true) {
 		if (RepulsorStrength < RepulsorMaxStrength)
 		{
-			RepulsorStrength += (RepulsorChargeSpeed / RepulsorStrength) * DeltaTime;
+			RepulsorStrength += (RepulsorChargeSpeed - (RepulsorChargeSpeed * (1 / (RepulsorMaxStrength - RepulsorStrength)))) * DeltaTime;
 		}
   
 		EmitterScale = (RepulsorStrength / RepulsorMaxStrength) * 2;
@@ -202,8 +201,8 @@ defaultproperties
 	CamOffsetDistance = -800.0;
 
 	RepulsorStrength = 0;
-	RepulsorChargeSpeed = 50;
-	RepulsorMaxStrength = 200;
+	RepulsorChargeSpeed = 500;
+	RepulsorMaxStrength = 1200;
 	EmitterScale = 0.1;
 
     Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment

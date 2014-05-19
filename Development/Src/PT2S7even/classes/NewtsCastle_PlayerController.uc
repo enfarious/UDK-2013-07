@@ -195,7 +195,6 @@ exec function StopFire(optional byte FireModeNum)
 			// Hax because canvas doesn't return valid values ...
 			PawnScreenPos.X = myHUD.CenterX;
 			PawnScreenPos.Y = myHUD.CenterY;
-			`log("\nPawnScreenPos: " $PawnScreenPos.X $", " $PawnScreenPos.Y);
 
 			MousePos.X = Mouse.MousePosition.X;
 			MousePos.Y = Mouse.MousePosition.Y;
@@ -204,17 +203,16 @@ exec function StopFire(optional byte FireModeNum)
 			Direction = MousePos - PawnScreenPos;
 			Angle = Atan2(Direction.X, Direction.Y) ;
 
-			Force = P.RepulsorStrength;
-
 			// Calculate force vectors
-			ForceVector.X = Force/50 * ((Direction.X*Cos(Angle) - Direction.Y*Sin(Angle)));
+			Force = P.RepulsorStrength;
+			ForceVector.X = Force * ((0*Cos(Angle) - 1*Sin(Angle)));
 			ForceVector.Y = 0.0;
-			ForceVector.Z = Force/50 * ((Direction.X*Sin(Angle) + Direction.Y*Cos(Angle)));
+			ForceVector.Z = Force * ((0*Sin(Angle) + 1*Cos(Angle)));
 
 			// Finally reset and stop the repulsor from charging further
 			P.RepulsorCharge(false, ForceVector);
 
-		`log("Repulsor Angle: " $Angle);
+		`log("Repulsor Angle: " $Angle * 2 * Pi);
 		`log("RepulsorStrength: " $Force);
 		`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
 
