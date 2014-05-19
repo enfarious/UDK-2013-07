@@ -157,7 +157,7 @@ exec function StartFire(optional byte FireModeNum)
 		P = NewtsCastle_Pawn(Pawn);
 		if(P != none)
 		{
-			P.RepulsorCharging(true);
+			P.RepulsorCharge(true);
 		}
 	}
 
@@ -167,11 +167,15 @@ exec function StartFire(optional byte FireModeNum)
 // Hook used for the left and right mouse button when released
 exec function StopFire(optional byte FireModeNum)
 {
-	local NewtsCastle_Pawn P;
 	local float Force;
+	local Vector MousePos, PawnScreenPos, Direction, ForceVector;
+	local float Angle;
 
-	HandleMouseInput((FireModeNum == 0) ? LeftMouseButton : RightMouseButton, IE_Released);
+	local NewtsCastle_HUD MouseInterfaceHUD;
+	local NewtsCastle_MouseInterfacePlayerInput Mouse;
+	local NewtsCastle_Pawn P;
 
+	// When button is released launch player
 	// For testing lets just make this a silly amount of force in a couple directions
 	// For reality it should be an amount of force based on angle of impact
 	if( (Pawn != None) )
@@ -179,17 +183,36 @@ exec function StopFire(optional byte FireModeNum)
 		P = NewtsCastle_Pawn(Pawn);
 		if(P != none)
 		{
-			Force = 10000; //P.RepulsorStrength;
+			MouseInterfaceHUD = NewtsCastle_HUD(myHUD);
 
-			P.RepulsorCharging(false);
+			Mouse = NewtsCastle_MouseInterfacePlayerInput(MouseInterfaceHUD.PlayerOwner.PlayerInput);
+			if (Mouse == none)
+			{
+				return;
+			}
 
-			Pawn.Acceleration.X = Force;
-			Pawn.Acceleration.Y = 0;
-			Pawn.Acceleration.Z = Force;
-	
+			PawnScreenPos = MouseInterfaceHUD.Canvas.Project(P.Location);
 
+			MousePos.X = Mouse.MousePosition.X;
+			MousePos.Y = Mouse.MousePosition.Y;
+			MousePos.Z = PawnScreenPos.Z;
+
+			Direction = MousePos - PawnScreenPos;
+			Angle = Atan2(Direction.X, Direction.Y);
+
+			Force = P.RepulsorStrength;
+
+			// Calculate force vectors
+			ForceVector.X = Force*((Force*Cos(Angle) - Force*Sin(Angle)));
+			ForceVector.Y = 0.0;
+			ForceVector.Z = Force*((Force*Sin(Angle) + Force*Cos(Angle)));
+
+			// Finally reset and stop the repulsor from charging further
+			P.RepulsorCharge(false, ForceVector);
 		}
 	}
+	
+	HandleMouseInput((FireModeNum == 0) ? LeftMouseButton : RightMouseButton, IE_Released);
 
 	Super.StopFire(FireModeNum);
 }

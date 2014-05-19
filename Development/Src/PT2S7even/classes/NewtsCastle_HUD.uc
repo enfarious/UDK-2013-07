@@ -116,7 +116,7 @@ function DrawReticle()
 	local Rotator ReticleRot;
 	local float Angle;
 
-	local Color LineColor;
+	// local Color LineColor;
 
 	local NewtsCastle_MouseInterfacePlayerInput Mouse;
 
@@ -132,8 +132,8 @@ function DrawReticle()
 	MousePos.Y = Mouse.MousePosition.Y;
 	MousePos.Z = PawnScreenPos.Z;
 
-	ReticleSize.X = 300;
-	ReticleSize.Y = 300;
+	ReticleSize.X = 200;
+	ReticleSize.Y = 200;
 	ReticleSize.Z = 0;
 
 	Direction = MousePos - PawnScreenPos;
@@ -143,13 +143,13 @@ function DrawReticle()
 	ReticleRot.Roll = 0;
 	ReticleRot.Pitch = 0;
 
-	LineColor.A = 127.0;
-	LineColor.R = 200.0;
-	LineColor.G = 10.0;
-	LineColor.B = 10.0;
+	//LineColor.A = 127.0;
+	//LineColor.R = 200.0;
+	//LineColor.G = 10.0;
+	//LineColor.B = 10.0;
 
 	// Show a line from the mouse to the pawn if things seem wonky
-	Canvas.Draw2DLine(PawnScreenPos.X, PawnScreenPos.Y, MousePos.X, MousePos.Y, LineColor);
+	// Canvas.Draw2DLine(PawnScreenPos.X, PawnScreenPos.Y, MousePos.X, MousePos.Y, LineColor);
 	
 	Canvas.SetPos(PawnScreenPos.X - ReticleSize.X/2, PawnScreenPos.Y - ReticleSize.Y/2);
 	Canvas.DrawRotatedTile(m_Reticle, ReticleRot, ReticleSize.X, ReticleSize.Y, 0, 0, m_Reticle.SizeX, m_Reticle.SizeY);

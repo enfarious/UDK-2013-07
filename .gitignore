@@ -17,6 +17,12 @@
 desktop.ini
 ProtoTyping_1_Src*
  
+# For Sublime Text 3 UnrealIDE
+/UDK/Development/Src/classes_cache.obj
+/UDK/Binaries/UScriptIDE_Breakpoints.xml
+/UDK/Binaries/Win64/UnrealDebugger.project
+/UDK/Binaries/Win32/UnrealDebugger.project
+
 # Exclude parts of the directory hierarchy that contain foundation/shared item
 # Please keep an eye out if you find yourself changing these items
 Binaries/
@@ -85,3 +91,4 @@ UDKGame/Screenshots/
 UDKGame/Script/
 UDKGame/Splash/
 UDKGame/Unpublished/
+Development/Src/PT2S7even/classes/5-18-classes.zip

@@ -23,7 +23,7 @@ event PlayerInput(float DeltaTime)
 		// Add the aMouseY to the mouse position and clamp it within the viewport height
 		MousePosition.Y = Clamp(MousePosition.Y - aMouseY, 0, myHUD.SizeY); 
 	}
-	`Log("MousePosition: " $MousePosition.X $", " $MousePosition.Y);
+	//`Log("MousePosition: " $MousePosition.X $", " $MousePosition.Y);
 	Super.PlayerInput(DeltaTime);
 }
 
