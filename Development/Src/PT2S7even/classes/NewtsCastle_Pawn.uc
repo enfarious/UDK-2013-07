@@ -130,10 +130,6 @@ function RepulsorCharge(bool bStartCharging, optional Vector ForceVector)
 	}
 	else
 	{
-		bCharging = false;
-		EmitterScale = 0.0f;
-		RepulsorStrength = 0.0f;
-
 		Mesh.DetachComponent(RepulsorComponent);
 
 		//Repulse = ParticleSystem'WP_LinkGun.Effects.P_WP_Linkgun_Altbeam_Gold';
@@ -144,21 +140,34 @@ function RepulsorCharge(bool bStartCharging, optional Vector ForceVector)
 			//RepulsorComponent.SetScale ( 0.5f );
 			Mesh.AttachComponentToSocket(RepulsorComponent, 'DualWeaponPoint');
 			RepulsorComponent.SetDepthPriorityGroup(SDPG_Foreground);
-			RepulsorComponent.SetRotation(POVRot);
+			//RepulsorComponent.SetRotation(POVRot);
 			RepulsorComponent.SetTemplate(Repulse);
 			RepulsorComponent.SetTickGroup(TG_PostUpdateWork);
 			RepulsorComponent.bUpdateComponentInTick = true;
 
 	
-			RepulsorComponent.SetVectorParameter('ShockBeamEnd', ForceVector * Location);
-			//RepulsorComponent.SetVectorParameter('ShockBeamStart', Location);
+			//RepulsorComponent.SetVectorParameter('ShockBeamEnd', ForceVector);
+			RepulsorComponent.SetVectorParameter('ShockBeamStart', ForceVector);
 		}
-
-		//TakeDamage(0, none, ForceVector, vect(0, 0, 0), class'DamageType');
-		AddVelocity(ForceVector/100, Location, none);
+/*
+		`log("RepulsorStrength: " $RepulsorStrength);
+		`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
+*/
+		AddVelocity(ForceVector, Location, none);
 		
-		Velocity += ForceVector;
+		// Repulsor Hax for movement:
 
+		// Use TakeDamage cause it can work, but occasionally seems to "push" the wrong way
+		// TakeDamage(0, none, ForceVector, vect(0, 0, 0), class'DamageType');
+
+		// Force the change in velocity
+		// Change physics to falling to stop Velocity changes from being messed with.
+		// SetPhysics(PHYS_Falling);
+		// Velocity += ForceVector;
+
+		bCharging = false;
+		EmitterScale = 0.0f;
+		RepulsorStrength = 0.0f;
 	}
 }
 
@@ -168,7 +177,7 @@ function Tick(float DeltaTime)
 	if (bCharging == true) {
 		if (RepulsorStrength < RepulsorMaxStrength)
 		{
-			RepulsorStrength += RepulsorChargeSpeed * DeltaTime;
+			RepulsorStrength += (RepulsorChargeSpeed / RepulsorStrength) * DeltaTime;
 		}
   
 		EmitterScale = (RepulsorStrength / RepulsorMaxStrength) * 2;
@@ -193,8 +202,8 @@ defaultproperties
 	CamOffsetDistance = -800.0;
 
 	RepulsorStrength = 0;
-	RepulsorChargeSpeed = 60;
-	RepulsorMaxStrength = 300;
+	RepulsorChargeSpeed = 50;
+	RepulsorMaxStrength = 200;
 	EmitterScale = 0.1;
 
     Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment

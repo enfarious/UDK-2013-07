@@ -191,24 +191,33 @@ exec function StopFire(optional byte FireModeNum)
 				return;
 			}
 
-			PawnScreenPos = MouseInterfaceHUD.Canvas.Project(P.Location);
+//			PawnScreenPos = MouseInterfaceHUD.Canvas.Project(P.Location);
+			// Hax because canvas doesn't return valid values ...
+			PawnScreenPos.X = myHUD.CenterX;
+			PawnScreenPos.Y = myHUD.CenterY;
+			`log("\nPawnScreenPos: " $PawnScreenPos.X $", " $PawnScreenPos.Y);
 
 			MousePos.X = Mouse.MousePosition.X;
 			MousePos.Y = Mouse.MousePosition.Y;
 			MousePos.Z = PawnScreenPos.Z;
 
 			Direction = MousePos - PawnScreenPos;
-			Angle = Atan2(Direction.X, Direction.Y);
+			Angle = Atan2(Direction.X, Direction.Y) ;
 
 			Force = P.RepulsorStrength;
 
 			// Calculate force vectors
-			ForceVector.X = Force*((Force*Cos(Angle) - Force*Sin(Angle)));
+			ForceVector.X = Force/50 * ((Direction.X*Cos(Angle) - Direction.Y*Sin(Angle)));
 			ForceVector.Y = 0.0;
-			ForceVector.Z = Force*((Force*Sin(Angle) + Force*Cos(Angle)));
+			ForceVector.Z = Force/50 * ((Direction.X*Sin(Angle) + Direction.Y*Cos(Angle)));
 
 			// Finally reset and stop the repulsor from charging further
 			P.RepulsorCharge(false, ForceVector);
+
+		`log("Repulsor Angle: " $Angle);
+		`log("RepulsorStrength: " $Force);
+		`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
+
 		}
 	}
 	
