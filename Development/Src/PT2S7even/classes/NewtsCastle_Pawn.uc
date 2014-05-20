@@ -90,11 +90,68 @@ simulated singular event Rotator GetBaseAimRotation()
 }   
 
 //
-// Used to repulse blocks
+// Used when repulsor fires, if a target is supplied the force will be applied to target
+// if no target is supplied then force will be applied to the player pawn.
 //
-function Repulse(KActor Target, Vector ForceVector)
+function Repulse(bool bHitPanel, optional KActor Target)
 {
-	//Target.AddImpulse(vect(10000,0,1230));
+	local float Force;
+	local Vector MousePos, PawnScreenPos, Direction, ForceVector;
+	local float Angle;
+
+	local NewtsCastle_PlayerController P;
+	local NewtsCastle_HUD MouseInterfaceHUD;
+	local NewtsCastle_MouseInterfacePlayerInput Mouse;
+
+	P = NewtsCastle_GameType(WorldInfo.Game).Controller;
+	MouseInterfaceHUD = NewtsCastle_HUD(P.myHUD);
+
+	Mouse = NewtsCastle_MouseInterfacePlayerInput(MouseInterfaceHUD.PlayerOwner.PlayerInput);
+	if (Mouse == none)
+	{
+		return;
+	}
+
+// PawnScreenPos = MouseInterfaceHUD.Canvas.Project(P.Location);
+	// Hax because canvas doesn't return valid values ...
+	PawnScreenPos.X = P.myHUD.CenterX;
+	PawnScreenPos.Y = P.myHUD.CenterY;
+
+	MousePos.X = Mouse.MousePosition.X;
+	MousePos.Y = Mouse.MousePosition.Y;
+	MousePos.Z = PawnScreenPos.Z;
+
+	Direction = PawnScreenPos - MousePos;
+	Angle = Atan2(Direction.X, Direction.Y) ;
+
+	// Calculate force vectors
+	Force = RepulsorStrength;
+	ForceVector.X = Force * ((0*Cos(Angle) - 1*Sin(Angle)));
+	ForceVector.Y = 0.0;
+	ForceVector.Z = Force * ((0*Sin(Angle) + 1*Cos(Angle)));
+
+	if (target != none && bHitPanel) {
+		Target.ApplyImpulse(vect(10000,0,1230), Force, vect(0, 0, 0));
+	} else if (bHitPanel) {
+
+		`log("RepulsorStrength: " $RepulsorStrength);
+		`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
+
+		
+		// Repulsor Hax for movement:
+		//AddVelocity(ForceVector, Location, none);
+
+		// Use TakeDamage cause it can work, but occasionally seems to "push" the wrong way
+		// TakeDamage(0, none, ForceVector, vect(0, 0, 0), class'DamageType');
+
+		// Force the change in velocity
+		// Change physics to falling to stop Velocity changes from being messed with.
+		SetPhysics(PHYS_Falling);
+		Velocity -= ForceVector;
+	}
+
+	// Finally reset and stop the repulsor from charging further
+	RepulsorCharge(false, ForceVector);
 }
 
 //
@@ -124,7 +181,6 @@ function RepulsorCharge(bool bStartCharging, optional Vector ForceVector)
 		}
 		
 		RepulsorStrength += RepulsorChargeSpeed;
-
 		bCharging = true;
 	}
 	else
@@ -136,33 +192,16 @@ function RepulsorCharge(bool bStartCharging, optional Vector ForceVector)
 		RepulsorComponent = new(Outer) class'ParticleSystemComponent';
 		if ( RepulsorComponent != none )
 		{
-			//RepulsorComponent.SetScale ( 0.5f );
+			RepulsorComponent.SetScale (0.5 + RepulsorStrength / RepulsorMaxStrength);
 			Mesh.AttachComponentToSocket(RepulsorComponent, 'DualWeaponPoint');
 			RepulsorComponent.SetDepthPriorityGroup(SDPG_Foreground);
-			//RepulsorComponent.SetRotation(POVRot);
 			RepulsorComponent.SetTemplate(Repulse);
 			RepulsorComponent.SetTickGroup(TG_PostUpdateWork);
 			RepulsorComponent.bUpdateComponentInTick = true;
 
 	
-			RepulsorComponent.SetVectorParameter('ShockBeamEnd', ForceVector);
-			//RepulsorComponent.SetVectorParameter('ShockBeamStart', ForceVector);
+			RepulsorComponent.SetVectorParameter('ShockBeamEnd', Location + ForceVector);
 		}
-/*
-		`log("RepulsorStrength: " $RepulsorStrength);
-		`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
-*/
-		
-		// Repulsor Hax for movement:
-		//AddVelocity(ForceVector, Location, none);
-
-		// Use TakeDamage cause it can work, but occasionally seems to "push" the wrong way
-		// TakeDamage(0, none, ForceVector, vect(0, 0, 0), class'DamageType');
-
-		// Force the change in velocity
-		// Change physics to falling to stop Velocity changes from being messed with.
-		SetPhysics(PHYS_Falling);
-		Velocity += ForceVector;
 
 		bCharging = false;
 		EmitterScale = 0.0f;
@@ -201,8 +240,8 @@ defaultproperties
 	CamOffsetDistance = -800.0;
 
 	RepulsorStrength = 0;
-	RepulsorChargeSpeed = 500;
-	RepulsorMaxStrength = 1200;
+	RepulsorChargeSpeed = 100;
+	RepulsorMaxStrength = 800;
 	EmitterScale = 0.1;
 
     Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment

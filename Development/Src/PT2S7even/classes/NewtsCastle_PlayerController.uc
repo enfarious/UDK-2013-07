@@ -20,6 +20,12 @@ enum EMouseEvent
 	ScrollWheelDown,
 };
 
+simulated event PostBeginPlay()
+{
+	Super.PostBeginPlay();
+	NewtsCastle_GameType(WorldInfo.Game).Controller = self;
+}
+
 state PlayerWalking
 {
 	function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
@@ -167,58 +173,9 @@ exec function StartFire(optional byte FireModeNum)
 // Hook used for the left and right mouse button when released
 exec function StopFire(optional byte FireModeNum)
 {
-	local float Force;
-	local Vector MousePos, PawnScreenPos, Direction, ForceVector;
-	local float Angle;
+	// Trigger Repulsor Fire kismet Event to allow kismet trace 
+	TriggerGlobalEventClass(class'SeqEvent_RepulsorFire', self);
 
-	local NewtsCastle_HUD MouseInterfaceHUD;
-	local NewtsCastle_MouseInterfacePlayerInput Mouse;
-	local NewtsCastle_Pawn P;
-
-	// When button is released launch player
-	// For testing lets just make this a silly amount of force in a couple directions
-	// For reality it should be an amount of force based on angle of impact
-	if( (Pawn != None) )
-	{
-		P = NewtsCastle_Pawn(Pawn);
-		if(P != none)
-		{
-			MouseInterfaceHUD = NewtsCastle_HUD(myHUD);
-
-			Mouse = NewtsCastle_MouseInterfacePlayerInput(MouseInterfaceHUD.PlayerOwner.PlayerInput);
-			if (Mouse == none)
-			{
-				return;
-			}
-
-//			PawnScreenPos = MouseInterfaceHUD.Canvas.Project(P.Location);
-			// Hax because canvas doesn't return valid values ...
-			PawnScreenPos.X = myHUD.CenterX;
-			PawnScreenPos.Y = myHUD.CenterY;
-
-			MousePos.X = Mouse.MousePosition.X;
-			MousePos.Y = Mouse.MousePosition.Y;
-			MousePos.Z = PawnScreenPos.Z;
-
-			Direction = MousePos - PawnScreenPos;
-			Angle = Atan2(Direction.X, Direction.Y) ;
-
-			// Calculate force vectors
-			Force = P.RepulsorStrength;
-			ForceVector.X = Force * ((0*Cos(Angle) - 1*Sin(Angle)));
-			ForceVector.Y = 0.0;
-			ForceVector.Z = Force * ((0*Sin(Angle) + 1*Cos(Angle)));
-
-			// Finally reset and stop the repulsor from charging further
-			P.RepulsorCharge(false, ForceVector);
-
-		`log("Repulsor Angle: " $Angle * 2 * Pi);
-		`log("RepulsorStrength: " $Force);
-		`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
-
-		}
-	}
-	
 	HandleMouseInput((FireModeNum == 0) ? LeftMouseButton : RightMouseButton, IE_Released);
 
 	Super.StopFire(FireModeNum);

@@ -13,6 +13,8 @@ var int nScore;
 var float fTimeLimit, fCountDownTimer;
 var bool bTimeLimitReached, bMouseActive;
 
+var NewtsCastle_PlayerController Controller;
+
 // Update time, used by SetTimer to automatically call at a regular interval (1/10th of a second for now)
 function Tick(float DeltaTime)
 {
