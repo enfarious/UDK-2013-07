@@ -11,7 +11,7 @@ class NewtsCastle_GameType extends UDKGame;
 
 var int nScore;
 var float fTimeLimit, fCountDownTimer;
-var bool bTimeLimitReached, bMouseActive;
+var bool bRunning, bTimeLimitReached, bMouseActive;
 
 var NewtsCastle_PlayerController Controller;
 
