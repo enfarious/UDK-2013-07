@@ -11,20 +11,25 @@
 class NewtsCastle_Pawn extends UDKPawn;
 
 var float CamOffsetDistance; //Position on Y-axis to lock camera to
+
 var float RepulsorStrength; // Charge amount in repulsor
 var float RepulsorMaxStrength; // Maximum charge in repulsor
 var float RepulsorChargeSpeed; // How fast the repulsor will charge while button pressed
+
+var float RepulsorCooldownTime; // How fast the repulsor can be fired again
+var float RepulsorCooldown;
+
 var float EmitterScale; // How large the repulsor effect should be while charging
 
 var bool bCharging; // While the repulsor is charging
 
 var	ParticleSystemComponent RepulsorComponent;
 
-event PostBeginPlay()
+simulated event PostBeginPlay()
 {
-	//SetPhysics(PHYS_RigidBody);
-
 	Super.PostBeginPlay();
+
+	NewtsCastle_GameType(WorldInfo.Game).Pawn = self;
 }
 
 // sets whether or not the owner of this pawn can see it
@@ -211,6 +216,13 @@ function RepulsorCharge(bool bStartCharging, optional Vector ForceVector)
 
 function Tick(float DeltaTime)
 {
+	if (RepulsorCooldown > 0.0) {
+		RepulsorCooldown -= DeltaTime;
+	}
+
+	if (RepulsorCooldown < 0.0) {
+		RepulsorCooldown = 0.0;
+	}
 
 	if (bCharging == true) {
 		if (RepulsorStrength < RepulsorMaxStrength)
@@ -240,8 +252,12 @@ defaultproperties
 	CamOffsetDistance = -800.0;
 
 	RepulsorStrength = 0;
-	RepulsorChargeSpeed = 100;
-	RepulsorMaxStrength = 800;
+	RepulsorChargeSpeed = 400;
+	RepulsorMaxStrength = 900;
+
+	RepulsorCooldown = 0.0;
+	RepulsorCooldownTime = 1.5;
+
 	EmitterScale = 0.1;
 
     Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment

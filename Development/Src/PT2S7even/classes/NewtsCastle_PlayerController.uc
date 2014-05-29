@@ -20,6 +20,17 @@ enum EMouseEvent
 	ScrollWheelDown,
 };
 
+var NewtsCastle_HUD NCHUD;
+
+var bool bMenuOpen;
+
+exec function OpenMenu()
+{
+	NCHUD = NewtsCastle_HUD(myHUD);
+	NCHUD.RenderMenu();
+	bMenuOpen = true;
+}
+
 simulated event PostBeginPlay()
 {
 	Super.PostBeginPlay();
@@ -32,6 +43,10 @@ state PlayerWalking
 	{
 		local NewtsCastle_Pawn P;
 		local Rotator tempRot;
+
+		if (!NewtsCastle_GameType(WorldInfo.Game).bRunning) {
+			return;
+		}
 
 		if( (Pawn != None) )
 		{
@@ -62,7 +77,6 @@ state PlayerWalking
 				Pawn.SetRemoteViewPitch( Rotation.Pitch );
 			}
 		}
-
 		CheckJumpOrDuck();
 	}
 }
@@ -72,6 +86,9 @@ function UpdateRotation( float DeltaTime )
 	local Rotator   DeltaRot, ViewRotation;
 
 	if (NewtsCastle_GameType(WorldInfo.Game).bMouseActive) {
+		return;
+	}
+	if (!NewtsCastle_GameType(WorldInfo.Game).bRunning) {
 		return;
 	}
 
@@ -96,54 +113,30 @@ function HandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent)
 	if (MouseInterfaceHUD != None)
 	{
 	// Detect what kind of input this is
-	if (InputEvent == IE_Pressed)
-	{
-		// Handle pressed event
-		switch (MouseEvent)
+		if (InputEvent == IE_Pressed)
 		{
-		case LeftMouseButton:
-			MouseInterfaceHUD.PendingLeftPressed = true;
-			break;
+			// Handle pressed event
+			switch (MouseEvent)
+			{
+			case LeftMouseButton:
+				MouseInterfaceHUD.PendingLeftPressed = true;
+				break;
 
-		case RightMouseButton:
-			MouseInterfaceHUD.PendingRightPressed = true;
-			break;
-
-		case MiddleMouseButton:
-			MouseInterfaceHUD.PendingMiddlePressed = true;
-			break;
-
-		case ScrollWheelUp:
-			MouseInterfaceHUD.PendingScrollUp = true;
-			break;
-
-		case ScrollWheelDown:
-			MouseInterfaceHUD.PendingScrollDown = true;
-			break;
-
-		default:
-			break;
+			default:
+				break;
+			}
 		}
-	}
-	else if (InputEvent == IE_Released)
-	{
-		// Handle released event
-		switch (MouseEvent)
+		else if (InputEvent == IE_Released)
 		{
-		case LeftMouseButton:
-			MouseInterfaceHUD.PendingLeftReleased = true;
-			break;
+			// Handle released event
+			switch (MouseEvent)
+			{
+			case LeftMouseButton:
+				MouseInterfaceHUD.PendingLeftReleased = true;
+				break;
 
-		case RightMouseButton:
-			MouseInterfaceHUD.PendingRightReleased = true;
-			break;
-
-		case MiddleMouseButton:
-			MouseInterfaceHUD.PendingMiddleReleased = true;
-			break;
-
-		default:
-			break;
+			default:
+				break;
 			}
 		}
 	}
@@ -163,7 +156,9 @@ exec function StartFire(optional byte FireModeNum)
 		P = NewtsCastle_Pawn(Pawn);
 		if(P != none)
 		{
-			P.RepulsorCharge(true);
+			if (P.RepulsorCooldown <= 0.0) {
+				P.RepulsorCharge(true);
+			}
 		}
 	}
 
@@ -173,36 +168,26 @@ exec function StartFire(optional byte FireModeNum)
 // Hook used for the left and right mouse button when released
 exec function StopFire(optional byte FireModeNum)
 {
-	// Trigger Repulsor Fire kismet Event to allow kismet trace 
-	TriggerGlobalEventClass(class'SeqEvent_RepulsorFire', self);
+	local NewtsCastle_Pawn P;
 
 	HandleMouseInput((FireModeNum == 0) ? LeftMouseButton : RightMouseButton, IE_Released);
 
+	if( (Pawn != None) )
+	{
+		P = NewtsCastle_Pawn(Pawn);
+		if(P != none)
+		{
+			if (P.RepulsorCooldown <= 0.0 && P.bCharging && P.RepulsorStrength > 0.0) {
+				// Trigger Repulsor Fire kismet Event to allow kismet trace 
+				TriggerGlobalEventClass(class'SeqEvent_RepulsorFire', self);
+
+				// Repulsor Cooldown Delay time
+				P.RepulsorCooldown = P.RepulsorCooldownTime;
+			}
+		}
+	}
+
 	Super.StopFire(FireModeNum);
-}
-
-// Called when the middle mouse button is pressed
-exec function MiddleMousePressed()
-{
-	HandleMouseInput(MiddleMouseButton, IE_Pressed);
-}
-
-// Called when the middle mouse button is released
-exec function MiddleMouseReleased()
-{
-	HandleMouseInput(MiddleMouseButton, IE_Released);
-}
-
-// Called when the middle mouse wheel is scrolled up
-exec function MiddleMouseScrollUp()
-{
-	HandleMouseInput(ScrollWheelUp, IE_Pressed);
-}
-
-// Called when the middle mouse wheel is scrolled down
-exec function MiddleMouseScrollDown()
-{
-	HandleMouseInput(ScrollWheelDown, IE_Pressed);
 }
 
 // Override this state because StartFire isn't called globally when in this function
@@ -216,5 +201,5 @@ auto state PlayerWaiting
 
 defaultproperties
 {
-	InputClass=class'NewtsCastle_MouseInterfacePlayerInput';
+	InputClass = class'NewtsCastle_MouseInterfacePlayerInput';
 }

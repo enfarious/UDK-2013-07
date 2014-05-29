@@ -23,7 +23,7 @@ event Activated()
 			Game.fTimeLimit = 90.0;
 		}
 
-		Game.fCountDownTimer = 0.0;
+		Game.fCountDownTimer = fTimeLimit;
 		Game.bTimeLimitReached = false;
 
 		Game.bMouseActive = false;

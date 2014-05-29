@@ -9,6 +9,9 @@
 
 class NewtsCastle_MouseInterfacePlayerInput extends PlayerInput;
 
+var NC_UIObject InteractiveObject;
+
+var (Menus) array<NC_MenuScene> NC_MenuStack;
 // Stored mouse position. Set to private write as we don't want other classes to modify it, but still allow other classes to access it.
 var IntPoint MousePosition; 
 
