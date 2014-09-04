@@ -120,6 +120,7 @@ function HandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent)
 			{
 			case LeftMouseButton:
 				MouseInterfaceHUD.PendingLeftPressed = true;
+				MouseInterfaceHUD.PendingLeftReleased = false;
 				break;
 
 			default:
@@ -132,6 +133,7 @@ function HandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent)
 			switch (MouseEvent)
 			{
 			case LeftMouseButton:
+				MouseInterfaceHUD.PendingLeftPressed = false;
 				MouseInterfaceHUD.PendingLeftReleased = true;
 				break;
 
@@ -151,18 +153,20 @@ exec function StartFire(optional byte FireModeNum)
 
 	// Show REPULSOR charging effect ...
 
-	if( (Pawn != None) )
-	{
-		P = NewtsCastle_Pawn(Pawn);
-		if(P != none)
+	if (!bMenuOpen) {
+		if( (Pawn != None) )
 		{
-			if (P.RepulsorCooldown <= 0.0) {
-				P.RepulsorCharge(true);
+			P = NewtsCastle_Pawn(Pawn);
+			if(P != none)
+			{
+				if (P.RepulsorCooldown <= 0.0) {
+					P.RepulsorCharge(true);
+				}
 			}
 		}
-	}
 
-	Super.StartFire(FireModeNum);
+		Super.StartFire(FireModeNum);
+	}
 }
 
 // Hook used for the left and right mouse button when released
@@ -172,22 +176,25 @@ exec function StopFire(optional byte FireModeNum)
 
 	HandleMouseInput((FireModeNum == 0) ? LeftMouseButton : RightMouseButton, IE_Released);
 
-	if( (Pawn != None) )
-	{
-		P = NewtsCastle_Pawn(Pawn);
-		if(P != none)
+	if (!bMenuOpen) {
+		if( (Pawn != None) )
 		{
-			if (P.RepulsorCooldown <= 0.0 && P.bCharging && P.RepulsorStrength > 0.0) {
-				// Trigger Repulsor Fire kismet Event to allow kismet trace 
-				TriggerGlobalEventClass(class'SeqEvent_RepulsorFire', self);
+			P = NewtsCastle_Pawn(Pawn);
+			if(P != none)
+			{
+				if (P.RepulsorCooldown <= 0.0 && P.bCharging && P.RepulsorStrength > 0.0) {
+					// Trigger Repulsor Fire kismet Event to allow kismet trace 
+					// TriggerGlobalEventClass(class'SeqEvent_RepulsorFire', self);
+					P.Repulse();
 
-				// Repulsor Cooldown Delay time
-				P.RepulsorCooldown = P.RepulsorCooldownTime;
+					// Repulsor Cooldown Delay time
+					P.RepulsorCooldown = P.RepulsorCooldownTime;
+				}
 			}
 		}
-	}
 
-	Super.StopFire(FireModeNum);
+		Super.StopFire(FireModeNum);
+	}
 }
 
 // Override this state because StartFire isn't called globally when in this function

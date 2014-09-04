@@ -86,4 +86,5 @@ function DrawButton(Canvas Canvas)
 
 DefaultProperties
 {
+	bClicked=false;
 }

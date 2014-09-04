@@ -98,7 +98,7 @@ simulated singular event Rotator GetBaseAimRotation()
 // Used when repulsor fires, if a target is supplied the force will be applied to target
 // if no target is supplied then force will be applied to the player pawn.
 //
-function Repulse(bool bHitPanel, optional KActor Target)
+function Repulse(optional KActor Target)
 {
 	local float Force;
 	local Vector MousePos, PawnScreenPos, Direction, ForceVector;
@@ -135,26 +135,26 @@ function Repulse(bool bHitPanel, optional KActor Target)
 	ForceVector.Y = 0.0;
 	ForceVector.Z = Force * ((0*Sin(Angle) + 1*Cos(Angle)));
 
-	if (target != none && bHitPanel) {
-		Target.ApplyImpulse(vect(10000,0,1230), Force, vect(0, 0, 0));
-	} else if (bHitPanel) {
+	`log("RepulsorStrength: " $RepulsorStrength);
+	`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
 
-		`log("RepulsorStrength: " $RepulsorStrength);
-		`log("Repulsor Force Vector: " $ForceVector.X $", " $ForceVector.Y $", " $ForceVector.Z);
+	if (target != none) {
+		if (target.IsA('NewtsCastle_RepulsorKActorPlaceble')) {
+			target.ApplyImpulse(vect(10000,0,1230), Force*100, vect(0, 0, 0));
 
-		
-		// Repulsor Hax for movement:
-		//AddVelocity(ForceVector, Location, none);
+		} else if (MouseInterfaceHUD.NCRepulsor.IsA('NewtsCastle_RepulsorActorStatic')) {
+			SetPhysics(PHYS_Falling);
+			Velocity -= ForceVector;
+		}
+	} else if (MouseInterfaceHUD.NCRepulsor != none) {
+		if (MouseInterfaceHUD.NCRepulsor.IsA('NewtsCastle_RepulsorKActorPlaceble')) {
+			KActor(MouseInterfaceHUD.NCRepulsor).ApplyImpulse(vect(10000,0,1230), Force*100, vect(0, 0, 0));
 
-		// Use TakeDamage cause it can work, but occasionally seems to "push" the wrong way
-		// TakeDamage(0, none, ForceVector, vect(0, 0, 0), class'DamageType');
-
-		// Force the change in velocity
-		// Change physics to falling to stop Velocity changes from being messed with.
-		SetPhysics(PHYS_Falling);
-		Velocity -= ForceVector;
+		} else if (MouseInterfaceHUD.NCRepulsor.IsA('NewtsCastle_RepulsorActorStatic')) {
+			SetPhysics(PHYS_Falling);
+			Velocity -= ForceVector;
+		}		
 	}
-
 	// Finally reset and stop the repulsor from charging further
 	RepulsorCharge(false, ForceVector);
 }

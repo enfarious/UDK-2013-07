@@ -13,7 +13,7 @@ event Activated()
 
 defaultproperties
 {
-	ObjName="Repulsor Fire Event"
+	ObjName="Repulsor Fire"
 	ObjCategory="NewtsCastle"
 
 	OutputLinks.empty;

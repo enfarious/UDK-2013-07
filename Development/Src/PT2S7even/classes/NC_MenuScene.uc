@@ -73,8 +73,8 @@ DefaultProperties
 {
 	Width=440
 	Height=640
-	Left=0.4
-	Top=0.4
+	Left=0.0
+	Top=0.0
 
 	Begin Object Class=NC_UIButton Name=Test
 		Tag="Test"
@@ -82,11 +82,12 @@ DefaultProperties
 		YL=100
 		Width=140
 		Height=24
+
 		Images(0) = Texture2D'PT2S7even_Assets.Textures.Button_Normal'
 		Images(1) = Texture2D'PT2S7even_Assets.Textures.Button_Hover'
 		ImagesUVs(0) = (bCustomCoords=true, U=366, V=140, UL=260, VL=48)
 		ImagesUVs(1) = (bCustomCoords=true, U=366, V=195, UL=260, VL=48)
-		Caption = "Play"
+		Caption = "Resume"
 		CaptionColor = (R=1.0, G=1.0, B=1.0, A=1.0)
 	End Object
 	UIObjects(0) = Test
@@ -118,7 +119,7 @@ DefaultProperties
 		Images(1) = Texture2D'PT2S7even_Assets.Textures.Button_Hover'
 		ImagesUVs(0) = (bCustomCoords=true, U=366, V=140, UL=260, VL=48)
 		ImagesUVs(1) = (bCustomCoords=true, U=366, V=195, UL=260, VL=48)
-		Caption = "Status"
+		Caption = "Exit"
 		CaptionColor = (R=1.0, G=1.0, B=1.0, A=1.0)
 	End Object
 	UIObjects(2)=Test3

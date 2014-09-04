@@ -21,6 +21,10 @@ var Vector CachedMouseWorldDirection;
 // Last mouse interaction interface
 var NewtsCastle_MouseInterfaceInteractionInterface LastMouseInteractionInterface;
 
+// Distance Check okay?
+var bool bDistanceOkay;
+var Actor NCRepulsor;
+
 var Font m_Font;
 var MultiFont m_MultiFont;
 
@@ -45,14 +49,17 @@ function DrawHUD()
 {
 	Super.DrawHUD();
 
-	if (bMenuOpen) {
-	} else {
+	if (!bMenuOpen) {
 		DrawBackGround();
 		DrawTimer();
 		DrawScore();
 		DrawChargeLevel();
 		DrawReticle();
 	}
+
+	//Mouse Trace Into World Debug
+	//DrawDebugLine(CachedMouseWorldOrigin, CachedMouseWorldDirection * 65536.f, 200, 200, 200);
+	TraceRepulseActor();
 }
 
 // Draw our HUD background
@@ -60,7 +67,7 @@ function DrawBackGround()
 {
 	Canvas.SetPos(0.0, 0.0);
 
-	Canvas.DrawTile(m_HUDBG, 300, 240, 0.0, 0.0, m_HUDBG.SizeX, m_HUDBG.SizeY);
+	Canvas.DrawTile(m_HUDBG, 480, 240, 0.0, 0.0, m_HUDBG.SizeX, m_HUDBG.SizeY);
 }
 
 // Draw the games timer on screen
@@ -227,7 +234,7 @@ event PostRender()
 				for(i=0; i<NCScene.UIObjects.Length; i++)
 				{
 					NCScene.UIObjects[i].CheckBounds(MouseInterfacePlayerInput.MousePosition.X, MouseInterfacePlayerInput.MousePosition.Y);
-					if(PendingLeftPressed == true)
+					if(PendingLeftReleased == true)
 					{
 						NCScene.UIObjects[i].bClicked = true;
 					}
@@ -236,6 +243,7 @@ event PostRender()
 						NCScene.UIObjects[i].bClicked = false;
 					}
 				}
+				PendingLeftReleased = false;
 			}
 		}
 	}
@@ -415,6 +423,104 @@ function CheckViewPortAspectRatio()
 	}
 }
 
+// Trace if it is a Custom KActor or StaticActor and call TracedActor function
+function TraceRepulseActor()
+{
+	local NewtsCastle_PlayerController PC;
+	local NewtsCastle_Pawn P;
+	local Vector TraceStart;
+	local Vector TraceEnd;
+	local NewtsCastle_MouseInterfacePlayerInput MouseInterfacePlayerInput;
+	local Vector2D MousePosition;
+	local Vector MouseWorldOrigin, MouseWorldDirection;
+	local Actor HitActor;
+	local Vector HitLocation;
+	local Vector HitNormal;
+	local float fDistanceCheck;
+	local float fDistance;
+	
+	// Type cast to get the new player input
+	MouseInterfacePlayerInput = NewtsCastle_MouseInterfacePlayerInput(PlayerOwner.PlayerInput);
+
+	// We stored the mouse position as an IntPoint, but it's needed as a Vector2D
+	MousePosition.X = MouseInterfacePlayerInput.MousePosition.X;
+	MousePosition.Y = MouseInterfacePlayerInput.MousePosition.Y;
+	// Deproject the mouse position and store it in the cached vectors
+	Canvas.DeProject(MousePosition, MouseWorldOrigin, MouseWorldDirection);
+
+	
+	//Debug Trace
+	PC = NewtsCastle_PlayerController ( PlayerOwner );
+	if (PC != none)
+	{
+		P = NewtsCastle_Pawn ( PC.Pawn );
+		if (P != none)
+		{
+			P.Mesh.GetSocketWorldLocationAndRotation('WeaponPoint', TraceStart);
+			TraceEnd.X = MouseWorldDirection.X;
+			TraceEnd.Y = 0;
+			TraceEnd.Z = MouseWorldDirection.Z;
+			//DrawDebugLine(TraceStart, TraceEnd * 65536.f, 255, 0, 0);
+
+		}
+	
+	}
+
+	// Perform a trace actor interator. An interator is used so that we get the top most mouse interaction
+	// interface. This covers cases when other traceable objects (such as static meshes) are above mouse
+	// interaction interfaces.
+	// If such an actor is hit, call traced actor function
+    
+	NCRepulsor = none;
+	
+	ForEach TraceActors(class'Actor', HitActor, HitLocation, HitNormal, TraceEnd * 65536.f, TraceStart, vect(10,10,10))
+	{
+	
+	fDistanceCheck = VSize (P.Location - HitActor.Location);
+	fDistance = 500.f;
+	if (fDistanceCheck <= fDistance && fDistanceCheck > 0 && (HitActor.IsA('NewtsCastle_RepulsorKActorPlaceble') || HitActor.IsA('NewtsCastle_RepulsorActorStatic')))
+		{
+			`log("Kabuum Kactor");
+			
+			NCRepulsor = HitActor;
+			TracedActor(HitLocation);
+		}
+	}
+
+}
+
+
+// If called it will return Distance, and if Distance is okay, it will return the object and boolean true.
+function TracedActor( out Vector HitLocation )
+{
+	local float fMaxDistance;
+	local float fCurrentDistance;
+	local NewtsCastle_PlayerController PC;
+	local NewtsCastle_Pawn P;
+
+
+	fMaxDistance = 300.f;
+	
+	PC = NewtsCastle_PlayerController ( PlayerOwner );
+	if ( PC != none )
+	{
+		P = NewtsCastle_Pawn ( PC.Pawn );
+		if (P != none)
+		{
+			fCurrentDistance = VSize (P.Location - HitLocation);
+		}
+	}
+
+	if (fMaxDistance >= fCurrentDistance)
+	{
+		
+		`log("Distance Okay");
+		bDistanceOkay = true;
+	}
+
+
+}
+
 //
 // Default Properties
 //
@@ -429,4 +535,7 @@ DefaultProperties
 
 	CursorColor=(R=255,G=255,B=255,A=255)
 	CursorTexture=Texture2D'EngineResources.Cursors.Arrow'
+
+	bDistanceOkay = false;
+
 }
